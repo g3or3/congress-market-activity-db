@@ -31,6 +31,7 @@ def run(create_csv=False):
     """ 
     Create the <YEAR> directories and download the appropriate text file.
     """
+
     try:
         person.downloadZipFiles(begin_year, end_year)
 
