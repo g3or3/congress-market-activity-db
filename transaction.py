@@ -1,6 +1,5 @@
 from urllib.request import urlopen
 from io import BytesIO
-from csv import DictWriter
 from assetTypes import asset_types as assets
 from numpy import NaN
 import concurrent.futures
@@ -180,7 +179,7 @@ def cleanName(df):
                 ticker = string[1:-1]
                 company.remove(string)
                 company.insert(0, ticker.upper())
-                
+
             # catchall condition if ticker is in string
             elif "(" in string and ")" in string:
                 left_paren = string.find("(")

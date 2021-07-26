@@ -21,6 +21,7 @@ import transaction
 import concurrent.futures
 from partition import partition
 from pandas import concat
+from handleMissingDocs import addMissingData
 
 
 def run(create_csv=False):
@@ -85,6 +86,9 @@ def run(create_csv=False):
     except sys.exc_info()[0] as e:
         print(e)
 
+    conn.close()
+
 
 if __name__ == "__main__":
     run()
+    addMissingData()
