@@ -158,10 +158,7 @@ def getTransactionData(args):
         return []
 
 
-def cleanDescription(df, create_csv=False, read_from_csv=False):
-    if read_from_csv:
-        df = pd.read_csv("./transactionData.csv")
-
+def cleanDescription(df):
     def trimDescription(cell):
         if "description:" in cell:
             cell = cell.split()[1:]
@@ -171,26 +168,10 @@ def cleanDescription(df, create_csv=False, read_from_csv=False):
 
     df["description"] = df["description"].map(trimDescription, na_action="ignore")
 
-    if create_csv:
-        df.to_csv(
-            "./transactionData.csv",
-            index=False,
-            columns=[
-                "doc_id",
-                "company",
-                "type",
-                "date",
-                "amount_range",
-                "description",
-            ],
-        )
     return df
 
 
-def cleanName(df, create_csv=False, read_from_csv=False):
-    if read_from_csv:
-        df = pd.read_csv("./transactionData.csv")
-
+def cleanName(df):
     def rearrangeName(cell):
         company = cell.split()
         for string in cell.split():
@@ -199,6 +180,7 @@ def cleanName(df, create_csv=False, read_from_csv=False):
                 ticker = string[1:-1]
                 company.remove(string)
                 company.insert(0, ticker.upper())
+                
             # catchall condition if ticker is in string
             elif "(" in string and ")" in string:
                 left_paren = string.find("(")
@@ -211,27 +193,10 @@ def cleanName(df, create_csv=False, read_from_csv=False):
 
     df["company"] = df["company"].map(rearrangeName)
 
-    if create_csv:
-        df.to_csv(
-            "./transactionData.csv",
-            index=False,
-            columns=[
-                "doc_id",
-                "company",
-                "type",
-                "date",
-                "amount_range",
-                "description",
-            ],
-        )
-
     return df
 
 
-def createTickerColumn(df, create_csv=False, read_from_csv=False):
-    if read_from_csv:
-        df = pd.read_csv("./transactionData.csv")
-
+def createTickerColumn(df):
     tickers = []
     for cell in df["company"]:
         if cell.split()[0].isupper():
@@ -245,28 +210,10 @@ def createTickerColumn(df, create_csv=False, read_from_csv=False):
         ["doc_id", "ticker", "company", "type", "date", "amount_range", "description"]
     ]
 
-    if create_csv:
-        df.to_csv(
-            "./transactionData.csv",
-            index=False,
-            columns=[
-                "doc_id",
-                "ticker",
-                "company",
-                "type",
-                "date",
-                "amount_range",
-                "description",
-            ],
-        )
-
     return df
 
 
-def updateName(df, create_csv=False, read_from_csv=False):
-    if read_from_csv:
-        df = pd.read_csv("./transactionData.csv")
-
+def updateName(df):
     def changeName(cell):
         strings = cell.split()
         if strings[0].isupper():
@@ -277,28 +224,10 @@ def updateName(df, create_csv=False, read_from_csv=False):
 
     df["company"] = df["company"].map(changeName)
 
-    if create_csv:
-        df.to_csv(
-            "./transactionData.csv",
-            index=False,
-            columns=[
-                "doc_id",
-                "ticker",
-                "company",
-                "type",
-                "date",
-                "amount_range",
-                "description",
-            ],
-        )
-
     return df
 
 
-def extractAssetType(df, create_csv=False, read_from_csv=False):
-    if read_from_csv:
-        df = pd.read_csv("./transactionData.csv")
-
+def extractAssetType(df):
     security_types = []
 
     def removeAssetTypeFromName(cell):
@@ -334,61 +263,18 @@ def extractAssetType(df, create_csv=False, read_from_csv=False):
         ]
     ]
 
-    if create_csv:
-        df.to_csv(
-            "./transactionData.csv",
-            index=False,
-            columns=[
-                "doc_id",
-                "ticker",
-                "company",
-                "asset",
-                "type",
-                "date",
-                "amount_range",
-                "description",
-            ],
-        )
-
     return df
 
 
-def capitalize(df, create_csv=False, read_from_csv=False):
-    if read_from_csv:
-        df = pd.read_csv("./transactionData.csv")
-
-    def helper(cell):
-        try:
-            cell = cell.upper()
-        except:
-            pass
-
-        return cell
-
+def capitalize(df):
     df[["company", "type", "description"]] = df[
         ["company", "type", "description"]
-    ].applymap(helper)
-
-    if create_csv:
-        df.to_csv(
-            "./transactionData.csv",
-            index=False,
-            columns=[
-                "doc_id",
-                "ticker",
-                "company",
-                "asset",
-                "type",
-                "date",
-                "amount_range",
-                "description",
-            ],
-        )
+    ].applymap(lambda c: c.upper(), na_action="ignore")
 
     return df
 
 
-def extractData(df, create_csv=False):
+def extractData(df):
     results = []
 
     columns = ["doc_id", "company", "type", "date", "amount_range", "description"]
@@ -404,13 +290,6 @@ def extractData(df, create_csv=False):
             )
             results.extend(data)
             i += 1
-
-    if create_csv:
-        with open("transactionsData.csv", "w", newline="") as file:
-            writer = DictWriter(file, fieldnames=columns)
-            writer.writeheader()
-            for entry in results:
-                writer.writerow(entry)
 
     df = pd.DataFrame(results, columns=columns)
 
