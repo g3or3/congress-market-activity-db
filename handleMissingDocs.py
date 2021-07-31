@@ -1,5 +1,7 @@
+from dotenv import load_dotenv
+from sqlalchemy import create_engine
+import os
 import pandas as pd
-import sqlite3
 import transaction
 
 
@@ -9,20 +11,21 @@ def addMissingData():
     extractData() did not catch the first time around.
     """
 
-    conn = sqlite3.connect("./transactions.db")
+    load_dotenv()
+    db_engine = create_engine(os.getenv("DEV_DATABASE"))
 
     person = pd.read_sql(
         """
     select * from person;
     """,
-        conn,
+        db_engine,
     )
 
     record = pd.read_sql(
         """
     select * from record;
     """,
-        conn,
+        db_engine,
     )
 
     tracked = set([_id for _id in record["doc_id"]])
@@ -37,6 +40,4 @@ def addMissingData():
 
     res = transaction.extractData(untracked)
 
-    res.to_sql("record", conn, index=False, if_exists="append")
-
-    conn.close()
+    res.to_sql("record", db_engine, index=False, if_exists="append")

@@ -6,7 +6,7 @@ members. This data contains document IDs and filing dates which are parsed in
 order to find the links to the PDFs that contain the actual transaction details.
 "https://disclosures-clerk.house.gov/public_disc/ptr-pdfs/<YEAR>/<DOCUMENT_ID>.pdf"
 These PDFs are parsed and cleaned in order to collect relevant data before storing
-in a SQLITE database for further use.
+in a postgres database for further use.
 
 -> main.py is assuming you are starting the program from scratch <-
 
@@ -51,12 +51,12 @@ def run(create_csv=False):
     necessary when making the request for the PDF file. 
     """
 
-    conn = db.connectDb("transactions.db")
-    db.createTables(conn)
+    db_engine = db.connectDb()
+    db.createTables(db_engine)
 
     try:
         person_data.drop("date", axis=1).to_sql(
-            "person", conn, index=False, if_exists="replace"
+            "person", db_engine, index=False, if_exists="append"
         )
     except sys.exc_info()[0] as e:
         print(e)
@@ -82,12 +82,10 @@ def run(create_csv=False):
         transaction_data.to_csv("./data/transactionData.csv", index=False)
 
     try:
-        transaction_data.to_sql("record", conn, index=False, if_exists="replace")
+        transaction_data.to_sql("record", db_engine, index=False, if_exists="append")
 
     except sys.exc_info()[0] as e:
         print(e)
-
-    conn.close()
 
 
 if __name__ == "__main__":
