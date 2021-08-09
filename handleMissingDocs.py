@@ -14,9 +14,9 @@ def addMissingData():
     load_dotenv()
     db_engine = create_engine(os.getenv("DEV_DATABASE"))
 
-    person = pd.read_sql(
+    relationship_table = pd.read_sql(
         """
-    select * from person;
+    select * from person_to_record;
     """,
         db_engine,
     )
@@ -32,7 +32,7 @@ def addMissingData():
 
     untracked = []
 
-    for url, _id in zip(person["url"], person["doc_id"]):
+    for url, _id in zip(relationship_table["url"], relationship_table["doc_id"]):
         if not _id in tracked:
             untracked.append((url[-17:-13], _id))
 

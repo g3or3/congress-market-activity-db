@@ -43,7 +43,9 @@ def run(create_csv=False):
     filing date (used to download the pdf later) and document id.
     """
 
-    person_data = person.extractData(begin_year, end_year, create_csv)
+    person_data, person_table, relationship_table = person.extractData(
+        begin_year, end_year, create_csv
+    )
 
     """
     Establish the connection to the database and populate the person table.
@@ -52,11 +54,16 @@ def run(create_csv=False):
     """
 
     db_engine = db.connectDb()
-    db.createTables(db_engine)
 
     try:
-        person_data.drop("date", axis=1).to_sql(
-            "person", db_engine, index=False, if_exists="append"
+        db.createTables(db_engine)
+    except sys.exc_info()[0] as e:
+        print("Error creating tables.")
+
+    try:
+        person_table.to_sql("person", db_engine, index=False, if_exists="append")
+        relationship_table.to_sql(
+            "person_to_record", db_engine, index=False, if_exists="append"
         )
     except sys.exc_info()[0] as e:
         print(e)

@@ -19,7 +19,13 @@ def downloadZipFiles(beginYear, endYear):
 
 
 def extractData(beginYear, endYear, create_csv):
-    data = {"first_name": [], "last_name": [], "date": [], "doc_id": [], "url": []}
+    data = {
+        "first_name": [],
+        "last_name": [],
+        "date": [],
+        "doc_id": [],
+        "url": [],
+    }
     base_url = "https://disclosures-clerk.house.gov/public_disc/ptr-pdfs/"
     document_id_set = set()
 
@@ -40,6 +46,26 @@ def extractData(beginYear, endYear, create_csv):
 
     df = pd.DataFrame(data)
 
+    person_table = df[["first_name", "last_name"]].drop_duplicates()
+    person_table["person_id"] = [i for i in range(len(person_table))]
+    person_table = person_table[["person_id", "first_name", "last_name"]]
+
+    person_data = df[["date", "doc_id"]]
+
+    relationship_table = df[["doc_id", "url"]]
+
+    id_col = []
+
+    for mainFName in df["first_name"]:
+        for person_id, fname in zip(
+            person_table["person_id"], person_table["first_name"]
+        ):
+            if mainFName == fname:
+                id_col.append(person_id)
+                break
+
+    relationship_table["person_id"] = id_col
+
     if create_csv:
         if "data" in listdir("."):
             df.drop("date", axis=1).to_csv(
@@ -53,4 +79,4 @@ def extractData(beginYear, endYear, create_csv):
                 index=False,
             )
 
-    return df
+    return person_data, person_table, relationship_table

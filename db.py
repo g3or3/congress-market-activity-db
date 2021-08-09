@@ -1,6 +1,6 @@
 from dotenv import load_dotenv
-import os
 from sqlalchemy import create_engine
+import os
 
 
 def connectDb():
@@ -13,7 +13,7 @@ def connectDb():
 
 def createTables(db):
     create_record_table = """CREATE TABLE IF NOT EXISTS record (
-                                    id serial PRIMARY KEY,
+                                    record_id serial PRIMARY KEY,
                                     doc_id text,
                                     ticker text,
                                     company text NOT NULL,
@@ -22,15 +22,24 @@ def createTables(db):
                                     date date NOT NULL,
                                     amount_range text NOT NULL,
                                     description text,
-                                    FOREIGN KEY (doc_id) REFERENCES person (doc_id) 
+                                    FOREIGN KEY (doc_id) REFERENCES person_to_record (doc_id)
                                 );"""
 
-    create_person_table = """CREATE TABLE IF NOT EXISTS person (
-                                    doc_id text PRIMARY KEY,
+    create_person_table = """ CREATE SEQUENCE person_id_seq;
+                              CREATE TABLE IF NOT EXISTS person (
+                                    person_id integer NOT NULL DEFAULT nextval('person_id_seq'),
                                     first_name text NOT NULL,
                                     last_name text NOT NULL,
-                                    url text NOT NULL
+                                    PRIMARY KEY (person_id)
+                                );"""
+
+    create_relationship_table = """CREATE TABLE IF NOT EXISTS person_to_record (
+                                    doc_id text PRIMARY KEY,
+                                    person_id integer NOT NULL,
+                                    url text NOT NULL,
+                                    FOREIGN KEY (person_id) REFERENCES person (person_id)
                                 );"""
 
     db.execute(create_person_table)
+    db.execute(create_relationship_table)
     db.execute(create_record_table)
