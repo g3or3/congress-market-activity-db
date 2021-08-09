@@ -70,10 +70,10 @@ def run(create_csv=False):
 
     """
     Partitions the person dataframe into individual data frames to pass to 
-    extractData() which will process each dataframe "concurrently" using multiple 
-    threads. Each result will return a dataframe with transaction data including 
-    doc_id, ticker, company, asset, type of transaction (purchase or sell), date, 
-    amount_range and description to populate the record table.
+    extractData() which will process each dataframe "concurrently" using multiple
+    processes and threads. Each result will return a dataframe with transaction data 
+    including doc_id, ticker, company, asset, type of transaction (purchase or sell), 
+    date, amount_range and description to populate the record table.
     """
 
     args = partition(person_data[["date", "doc_id"]], 10)
