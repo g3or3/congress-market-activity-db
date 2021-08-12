@@ -1,4 +1,5 @@
 PyMuPDF
+psycopg2-binary
 numpy==1.21.1
 pandas==1.3.0
 fitz==0.0.1.dev2
